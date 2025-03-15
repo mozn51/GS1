@@ -8,3 +8,6 @@ logs/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+#reporting
+mochawesome-report
