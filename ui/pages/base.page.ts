@@ -8,6 +8,14 @@ export class BasePage {
     }
 
     async goto(url: string, waitForSelector: string) {
+
+        console.log(`Navigating to: ${url}`);
+        console.log(`Waiting for selector: ${waitForSelector}`);
+
+        if (!waitForSelector) {
+            throw new Error(`Missing waitForSelector when navigating to ${url}`);
+        }
+
         await this.page.goto(url);
         await expect(this.page.locator(waitForSelector)).toBeVisible({ timeout: 5000 });
     }

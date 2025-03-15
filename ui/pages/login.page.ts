@@ -2,26 +2,24 @@ import { Page, Locator } from '@playwright/test';
 import { URLs } from '../utils/urls';
 import { Credentials } from '../utils/credentials';
 import { BasePage } from './base.page';
-import { Selectors } from '../utils/selectors';
 
 export class LoginPage extends BasePage {
+    private static readonly loginContainerSelector = '.login_container';
     private readonly usernameField: Locator;
     private readonly passwordField: Locator;
     private readonly loginButton: Locator;
     private readonly errorMessage: Locator;
-    private readonly loginContainer: Locator;
-
+    
     constructor(page: Page) {
         super(page);
         this.usernameField = page.locator('#user-name');
         this.passwordField = page.locator('#password');
         this.loginButton = page.locator('#login-button');
-        this.errorMessage = page.locator('.error-message-container');
-        this.loginContainer = page.locator('.login_container');
+        this.errorMessage = page.locator('.error-message-container');  
     }
 
     async goto() {
-        await super.goto(URLs.BASE_URL, Selectors.LOGIN_CONTAINER);
+        await super.goto(URLs.BASE_URL, LoginPage.loginContainerSelector);
     }
 
     async login(username: string, password: string) {
