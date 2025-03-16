@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import fs from 'fs';
 
 export default defineConfig({
   testDir: "ui/tests",
@@ -12,7 +11,7 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     baseURL: 'https://www.saucedemo.com',
     navigationTimeout: 10000,
-    trace: 'retain-on-failure',
+    trace: process.env.CI ? 'retain-on-failure' : 'on',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -27,12 +26,4 @@ export default defineConfig({
   maxFailures: 2,
   retries: process.env.CI ? 2 : 1,
   outputDir: 'reports/',
-});
-
-process.on('exit', () => {
-  const jsonFile = 'reports/ui-report.json';
-  if (!fs.existsSync(jsonFile)) {
-    console.error("Playwright JSON report was NOT created. Creating an empty file...");
-    fs.writeFileSync(jsonFile, '{}');
-  }
 });

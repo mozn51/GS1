@@ -18,6 +18,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    env:
+      LOG_LEVEL: info  # Set the log level to 'info' for minimal logs in CI/CD
 
     steps:
       - name: Checkout repository
@@ -31,23 +33,37 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Run API tests
       - name: Run API Tests
         run: npm run test:api:ci
 
+      # Upload the API test report (JUnit format)
       - name: Upload API Test Report
         uses: actions/upload-artifact@v4
         with:
           name: api-test-report
           path: reports/api/junit-report.xml
 
+      # Install Playwright Browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Run UI Tests
-        run: npm run test:ui
+      # Run UI tests with Playwright and enable reporting
+      - name: Run UI Tests with Playwright
+        run: |
+          # Ensure Playwright configuration is set up for video and tracing
+          npx playwright test --project=chromium --reporter=html --reporter=json --output=playwright-report/
 
+      # Upload the Playwright UI test reports (HTML and JSON)
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
         with:
           name: ui-test-report
           path: playwright-report/
+
+      # Upload Playwright trace files (if any)
+      - name: Upload Playwright Trace Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-trace
+          path: playwright-report/trace.zip  # Assuming traces are stored here
