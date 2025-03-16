@@ -1,22 +1,25 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect } from "@playwright/test";
 
 export class BasePage {
-    protected page: Page;
+  protected page: Page;
 
-    constructor(page: Page) {
-        this.page = page;
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  async goto(url: string, waitForSelector: string) {
+    if (!waitForSelector) {
+      throw new Error(`Missing waitForSelector when navigating to ${url}`);
     }
 
-    async goto(url: string, waitForSelector: string) {
+    console.log(`Navigating to: ${url}`);
 
-        console.log(`Navigating to: ${url}`);
-        console.log(`Waiting for selector: ${waitForSelector}`);
-
-        if (!waitForSelector) {
-            throw new Error(`Missing waitForSelector when navigating to ${url}`);
-        }
-
-        await this.page.goto(url);
-        await expect(this.page.locator(waitForSelector)).toBeVisible({ timeout: 5000 });
+    try {
+      await this.page.goto(url, { waitUntil: "domcontentloaded" });
+      await expect(this.page.locator(waitForSelector)).toBeVisible({ timeout: 5000 });
+    } catch (error) {
+      console.error(`Navigation failed to: ${url}`);
+      throw error;
     }
+  }
 }
