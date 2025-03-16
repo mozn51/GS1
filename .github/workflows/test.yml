@@ -43,8 +43,22 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Ensure reports directory exists
+        run: mkdir -p reports/
+
       - name: Run UI Tests
         run: npm run test:ui
+
+      - name: Debug Playwright JSON Report
+        if: always()
+        run: |
+          if [ -f reports/ui-report.json ]; then
+            echo "✅ Playwright JSON report found."
+          else
+            echo "❌ Playwright JSON report NOT found."
+            exit 1
+          fi
+
 
       - name: Upload UI JUnit Report
         uses: actions/upload-artifact@v4

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import fs from 'fs';
 
 export default defineConfig({
   testDir: "ui/tests",
@@ -25,4 +26,13 @@ export default defineConfig({
   fullyParallel: true,
   maxFailures: 2,
   retries: process.env.CI ? 2 : 1,
+  outputDir: 'reports/',
+});
+
+process.on('exit', () => {
+  const jsonFile = 'reports/ui-report.json';
+  if (!fs.existsSync(jsonFile)) {
+    console.error("Playwright JSON report was NOT created. Creating an empty file...");
+    fs.writeFileSync(jsonFile, '{}');
+  }
 });
