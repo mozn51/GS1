@@ -82,7 +82,7 @@ jobs:
         with:
           name: Playwright Tests
           path: "reports/ui-report.json"
-          reporter: playwright-json
+          reporter: mocha-json
           path-replace-backslashes: false
           list-suites: all
           list-tests: all
