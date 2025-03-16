@@ -31,53 +31,51 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
       - name: Run API Tests
         run: npm run test:api:ci
 
       - name: Upload API Test Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: api-test-report
           path: reports/api/junit-report.xml
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Run UI Tests with JSON Reporter
+        run: npx playwright test --reporter=json --output-file=reports/ui-report.json
 
-      - name: Ensure reports directory exists
-        run: mkdir -p reports/
-
-      - name: Run UI Tests (with JSON Reporter)
-        run: |
-          mkdir -p reports/
-          npx playwright test
-
-      - name: Debug Reports Directory
-        if: always()
+      - name: Debug Playwright Reports
+        if: failure()
         run: |
           echo "Checking reports/ directory contents..."
-          ls -lah reports/ || echo "reports/ directory not found!"
-          find reports/ -type f || echo "No report files found in reports/ directory!"
-
+          ls -lah reports/ || echo " reports/ directory not found!"
+          find reports/ -type f || echo " No report files found in reports/ directory!"
 
       - name: Upload UI JUnit Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ui-junit-report
           path: reports/ui-junit-report.xml
 
-      - name: Upload UI JSON Report (For Local Debugging)
+      - name: Upload UI JSON Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ui-json-report
           path: reports/ui-report.json
 
       - name: Upload UI HTML Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ui-html-report
           path: playwright-report/
 
-      - name: Publish API Test Results
+      - name: Publish API Test Results (JUnit)
         uses: mikepenz/action-junit-report@v3
         if: always()
         with:
@@ -96,7 +94,6 @@ jobs:
           name: Playwright Tests
           path: "reports/ui-report.json"
           reporter: mocha-json
-          path-replace-backslashes: false
           list-suites: all
           list-tests: all
           max-annotations: 10
