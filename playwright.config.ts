@@ -17,12 +17,12 @@ export default defineConfig({
   },
   reporter: [
     ['list'],
-    ['json', { outputFile: 'reports/report.json' }],
+    ['json', { outputFile: 'reports/ui-report.json' }],
     ["junit", { outputFile: "reports/ui-junit-report.xml" }],
     ['html', { outputFolder: 'playwright-report/', open: 'never' }],
   ],
-  workers: 3,
+  workers: process.env.CI ? 5 : 3,
   fullyParallel: true,
-  maxFailures: 0,
+  maxFailures: 2,
   retries: 2,
 });
