@@ -18,9 +18,9 @@ export default defineConfig({
   },
   reporter: [
     ['list'],
-    ['json', { outputFile: 'reports/ui-report.json' }],
-    ["junit", { outputFile: "reports/ui-junit-report.xml" }],
-    ['html', { outputFolder: 'playwright-report/', open: 'never' }],
+    ['json', { outputFile: './reports/ui-report.json' }],
+    ["junit", { outputFile: "./reports/ui-junit-report.xml" }],
+    ['html', { outputFolder: './playwright-report/', open: 'never' }],
   ],
   workers: process.env.CI ? 5 : 3,
   fullyParallel: true,

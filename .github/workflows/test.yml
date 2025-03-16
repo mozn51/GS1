@@ -46,18 +46,15 @@ jobs:
       - name: Ensure reports directory exists
         run: mkdir -p reports/
 
-      - name: Run UI Tests
-        run: npm run test:ui
+      - name: Run UI Tests (with JSON Reporter)
+        run: npx playwright test --reporter=json --output-file=reports/ui-report.json
 
-      - name: Debug Playwright JSON Report
+      - name: Debug Reports Directory
         if: always()
         run: |
-          if [ -f reports/ui-report.json ]; then
-            echo "✅ Playwright JSON report found."
-          else
-            echo "❌ Playwright JSON report NOT found."
-            exit 1
-          fi
+          echo "Checking reports/ directory contents..."
+          ls -lah reports/ || echo "reports/ directory not found!"
+          find reports/ -type f || echo "No report files found in reports/ directory!"
 
 
       - name: Upload UI JUnit Report
