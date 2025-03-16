@@ -31,72 +31,23 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
       - name: Run API Tests
         run: npm run test:api:ci
 
       - name: Upload API Test Report
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: api-test-report
           path: reports/api/junit-report.xml
 
-      - name: Run UI Tests with JSON Reporter
-        run: npx playwright test --reporter=json --output-file=reports/ui-report.json
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-      - name: Debug Playwright Reports
-        if: failure()
-        run: |
-          echo "Checking reports/ directory contents..."
-          ls -lah reports/ || echo " reports/ directory not found!"
-          find reports/ -type f || echo " No report files found in reports/ directory!"
+      - name: Run UI Tests
+        run: npm run test:ui
 
-      - name: Upload UI JUnit Report
+      - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: ui-junit-report
-          path: reports/ui-junit-report.xml
-
-      - name: Upload UI JSON Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ui-json-report
-          path: reports/ui-report.json
-
-      - name: Upload UI HTML Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ui-html-report
+          name: ui-test-report
           path: playwright-report/
-
-      - name: Publish API Test Results (JUnit)
-        uses: mikepenz/action-junit-report@v3
-        if: always()
-        with:
-          report_paths: "reports/api/junit-report.xml"
-
-      - name: Publish UI Test Results (JUnit)
-        uses: mikepenz/action-junit-report@v3
-        if: always()
-        with:
-          report_paths: "reports/ui-junit-report.xml"
-
-      - name: Publish UI Test Results (JSON for Debugging)
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Playwright Tests
-          path: "reports/ui-report.json"
-          reporter: mocha-json
-          list-suites: all
-          list-tests: all
-          max-annotations: 10
-          fail-on-error: true
-          fail-on-empty: true
-          only-summary: false
