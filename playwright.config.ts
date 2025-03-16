@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['json', { outputFile: 'reports/report.json' }],
-    ['html', { outputFolder: 'reports/', open: 'never', outputFile: 'report.zip' }],
+    ['html', { outputFolder: 'playwright-report/', open: 'never' }],
   ],
   workers: 3,
   fullyParallel: true,
