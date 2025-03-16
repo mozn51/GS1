@@ -51,3 +51,17 @@ jobs:
         with:
           name: ui-test-report
           path: playwright-report/
+
+      - name: Publish API Test Results
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: "reports/api/junit-report.xml"
+
+      - name: Publish UI Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Playwright Tests
+          path: "reports/report.json"
+          reporter: mocha-json
