@@ -66,8 +66,9 @@ export class CartPage extends BasePage {
     return await this.cartList.locator('.inventory_item_name').allTextContents();
   }
 
-  async getAllCartProductPrices(): Promise<string[]> {
-    return await this.cartList.locator('.inventory_item_price').allTextContents();
+  async getAllCartProductPrices(): Promise<number[]> {
+    const prices = await this.cartItems.locator(".inventory_item_price").allTextContents();
+    return prices.map(price => parseFloat(price.replace("$", "")));
   }
 
   async getAllCheckoutProductNames(): Promise<string[]> {
