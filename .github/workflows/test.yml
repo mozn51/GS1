@@ -47,7 +47,9 @@ jobs:
         run: mkdir -p reports/
 
       - name: Run UI Tests (with JSON Reporter)
-        run: npx playwright test --reporter=json --output-file=reports/ui-report.json
+        run: |
+          mkdir -p reports/
+          npx playwright test
 
       - name: Debug Reports Directory
         if: always()
