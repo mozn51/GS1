@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:ui && npm run test:api",
-    "test:api": "mocha --reporter mochawesome --require ts-node/register api/tests/petstore/*.test.ts",
+    "test:api": "mocha --reporter spec --require ts-node/register api/tests/petstore/*.test.ts",
+    "test:api:report": "mocha --reporter mochawesome --require ts-node/register api/tests/petstore/*.test.ts",
+    "test:api:ci": "mocha --reporter mocha-junit-reporter --require ts-node/register api/tests/petstore/*.test.ts",
     "test:ui": "playwright test"
   },
   "keywords": [],
