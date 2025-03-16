@@ -3,6 +3,7 @@ import { LoginPage } from "../pages/login.page";
 import { ProductPage } from "../pages/product.page";
 import { Filters } from "../utils/filters";
 import { CartPage } from "../pages/cart.page";
+import { Messages } from "../utils/messages";
 
 test.describe("Cart & Checkout Tests", () => {
   test.beforeEach(async ({ page }) => {
@@ -55,7 +56,7 @@ test.describe("Cart & Checkout Tests", () => {
     await cartPage.finishCheckout();
 
     // Verify checkout success message
-    await expect(cartPage.successMessage).toHaveText(/Thank you for your order!/);
+    await expect(cartPage.successMessage).toHaveText(Messages.CHECKOUT_THANKS);
 
     // Back to home page
     await cartPage.goBackToHome();

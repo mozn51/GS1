@@ -17,7 +17,8 @@ test.describe("Login Tests", () => {
 
   test("should display an error message for invalid credentials", async ({ page }) => {
     await loginPage.loginWithInvalidUser();
-    await expect(loginPage.errorMessage).toBeVisible();
-    await expect(loginPage.errorMessage).toContainText(Messages.LOGIN_ERROR);
+    await expect(loginPage.loginErrorMessage).toBeVisible();
+    const errorMessage = await loginPage.getLoginErrorMessage();
+    expect(errorMessage).toContain(Messages.LOGIN_ERROR);
   });
 });

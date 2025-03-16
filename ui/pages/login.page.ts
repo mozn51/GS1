@@ -8,14 +8,14 @@ export class LoginPage extends BasePage {
   private readonly usernameField: Locator;
   private readonly passwordField: Locator;
   private readonly loginButton: Locator;
-  public readonly errorMessage: Locator;
+  public readonly loginErrorMessage: Locator;
 
   constructor(page: Page) {
     super(page);
     this.usernameField = page.locator("#user-name");
     this.passwordField = page.locator("#password");
     this.loginButton = page.locator("#login-button");
-    this.errorMessage = page.locator(".error-message-container");
+    this.loginErrorMessage = page.locator(".error-message-container");
   }
 
   async goto() {
@@ -36,10 +36,10 @@ export class LoginPage extends BasePage {
 
   async loginWithInvalidUser() {
     await this.login(Credentials.INVALID_USER.username, Credentials.INVALID_USER.password);
-    await expect(this.errorMessage).toBeVisible({ timeout: 3000 });
+    await expect(this.loginErrorMessage).toBeVisible({ timeout: 3000 });
   }
 
-  async getErrorMessage() {
-    return await this.errorMessage.textContent();
+  async getLoginErrorMessage() {
+    return await this.loginErrorMessage.textContent();
   }
 }

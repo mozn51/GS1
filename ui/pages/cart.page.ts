@@ -5,7 +5,6 @@ import { BasePage } from "./base.page";
 export class CartPage extends BasePage {
   private static readonly cartListSelector = ".cart_list";
   public readonly cartList: Locator;
-  private readonly cartIcon: Locator;
   private readonly cartItems: Locator;
   public readonly checkoutButton: Locator;
   private readonly firstNameField: Locator;
@@ -21,7 +20,6 @@ export class CartPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.cartList = page.locator(CartPage.cartListSelector);
-    this.cartIcon = page.locator(".shopping_cart_link");
     this.cartItems = page.locator(".cart_item");
     this.checkoutButton = page.locator("#checkout");
     this.firstNameField = page.locator("#first-name");
