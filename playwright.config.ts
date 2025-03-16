@@ -18,10 +18,11 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['json', { outputFile: 'reports/report.json' }],
+    ["junit", { outputFile: "reports/ui-junit-report.xml" }],
     ['html', { outputFolder: 'playwright-report/', open: 'never' }],
   ],
   workers: 3,
   fullyParallel: true,
   maxFailures: 0,
-  retries: 1,
+  retries: 2,
 });

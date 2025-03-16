@@ -46,10 +46,22 @@ jobs:
       - name: Run UI Tests
         run: npm run test:ui
 
-      - name: Upload UI Test Report
+      - name: Upload UI JUnit Report
         uses: actions/upload-artifact@v4
         with:
-          name: ui-test-report
+          name: ui-junit-report
+          path: reports/ui-junit-report.xml
+
+      - name: Upload UI JSON Report (For Local Debugging)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-json-report
+          path: reports/ui-report.json
+
+      - name: Upload UI HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-html-report
           path: playwright-report/
 
       - name: Publish API Test Results
@@ -58,10 +70,16 @@ jobs:
         with:
           report_paths: "reports/api/junit-report.xml"
 
-      - name: Publish UI Test Results
+      - name: Publish UI Test Results (JUnit)
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: "reports/ui-junit-report.xml"
+
+      - name: Publish UI Test Results (JSON for Debugging)
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Playwright Tests
-          path: "reports/report.json"
-          reporter: mocha-json
+          path: "reports/ui-report.json"
+          reporter: playwright-json
