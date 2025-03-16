@@ -1,8 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { API_CONFIG } from "../config/api-config";
 
-const isCI = process.env.CI === "true"; // Detect if running in CI/CD
-
 export class APIRequest {
   private client: AxiosInstance;
 
@@ -17,48 +15,33 @@ export class APIRequest {
     });
   }
 
-  async get(endpoint: string, params = {}): Promise<AxiosResponse> {
+  private async logExecutionTime<T>(request: Promise<T>, method: string, endpoint: string): Promise<T> {
+    const start = Date.now();
     try {
-      if (!isCI) console.log(`[API] GET request to ${endpoint} with params:`, params);
-      return await this.client.get(endpoint, { params });
+      const response = await request;
+      const duration = Date.now() - start;
+      console.log(`[API] ${method} ${endpoint} completed in ${duration}ms`);
+      return response;
     } catch (error: any) {
-      console.error(`[ERROR] GET ${endpoint} failed:`, error.response?.data || error.message);
+      const duration = Date.now() - start;
+      console.error(`[API] ${method} ${endpoint} failed after ${duration}ms:`, error.response?.data || error.message);
       throw error;
     }
+  }
+
+  async get(endpoint: string, params = {}): Promise<AxiosResponse> {
+    return this.logExecutionTime(this.client.get(endpoint, { params }), "GET", endpoint);
   }
 
   async post(endpoint: string, body: object): Promise<AxiosResponse> {
-    try {
-      // Log only metadata, not full request body
-      if (!isCI) {
-        const bodySummary = JSON.stringify(body).length > 500 ? `{ Large Payload - ${JSON.stringify(body).length} chars }` : body;
-        console.log(`[API] POST request to ${endpoint} with body:`, bodySummary);
-      }
-      
-      return await this.client.post(endpoint, body);
-    } catch (error: any) {
-      console.error(`[ERROR] POST ${endpoint} failed:`, error.response?.data || error.message);
-      throw error;
-    }
+    return this.logExecutionTime(this.client.post(endpoint, body), "POST", endpoint);
   }
 
   async put(endpoint: string, body: object): Promise<AxiosResponse> {
-    try {
-      if (!isCI) console.log(`[API] PUT request to ${endpoint} with body:`, JSON.stringify(body));
-      return await this.client.put(endpoint, body);
-    } catch (error: any) {
-      console.error(`[ERROR] PUT ${endpoint} failed:`, error.response?.data || error.message);
-      throw error;
-    }
+    return this.logExecutionTime(this.client.put(endpoint, body), "PUT", endpoint);
   }
 
   async delete(endpoint: string): Promise<AxiosResponse> {
-    try {
-      if (!isCI) console.log(`[API] DELETE request to ${endpoint}`);
-      return await this.client.delete(endpoint);
-    } catch (error: any) {
-      console.error(`[ERROR] DELETE ${endpoint} failed:`, error.response?.data || error.message);
-      throw error;
-    }
+    return this.logExecutionTime(this.client.delete(endpoint), "DELETE", endpoint);
   }
 }
