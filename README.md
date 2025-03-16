@@ -124,7 +124,7 @@ npm run test:ui
 
 ```bash
 npx playwright test ui/tests/login.test.ts
-npx mocha api/tests/petstore/pet-create.test.ts
+npx mocha --require ts-node/register api/tests/petstore/pet-create.test.ts
 ```
 
 ### Run Tests in Debug Mode
