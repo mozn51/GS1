@@ -1,0 +1,45 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run API Tests
+        run: npm run test:api:ci
+
+      - name: Upload API Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-report
+          path: reports/api/junit-report.xml
+
+      - name: Run UI Tests
+        run: npm run test:ui
+
+      - name: Upload UI Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ui-test-report
+          path: playwright-report/
