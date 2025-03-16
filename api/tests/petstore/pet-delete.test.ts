@@ -6,7 +6,7 @@ const isCI = process.env.CI === "true"; // Detect if running in CI/CD
 let petId: number;
 
 describe("Petstore API - Delete Pet", function () {
-  this.timeout(25000);
+  this.timeout(30000); // Increased timeout for CI/CD reliability
 
   before(async function () {
     const petData = {
@@ -22,22 +22,23 @@ describe("Petstore API - Delete Pet", function () {
     petId = response.data.id;
     if (!isCI) console.log(`[API] Pet created successfully with ID: ${petId}`);
 
-    let retries = 7; // Increased retries
-    let petExists = false;
-    
+    // 🔹 Ensure API has persisted the new pet before proceeding
+    let retries = 8;
+    let delay = 2000; // Start with 2s wait, increase exponentially
+
     while (retries > 0) {
       try {
         const checkResponse = await api.get(`/pet/${petId}`);
         if (checkResponse.status === 200) {
           console.log(`[API] Pet ${petId} confirmed to exist.`);
-          petExists = true;
           break;
         }
       } catch (error: any) {
         if (error.response?.status === 404) {
-          console.log(`[API] Pet not found yet, retrying... (${retries - 1} attempts left)`);
+          console.log(`[API] Pet not found yet, retrying in ${delay / 1000}s... (${retries - 1} attempts left)`);
           retries--;
-          await new Promise((resolve) => setTimeout(resolve, 2500));
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          delay *= 1.5; // Exponential backoff
         } else {
           console.error("[ERROR] Unexpected API response:", error.response?.data || error.message);
           throw error;
@@ -45,17 +46,15 @@ describe("Petstore API - Delete Pet", function () {
       }
     }
 
-    if (!petExists) {
-      throw new Error(`[ERROR] Pet ${petId} was created but never found in API.`);
+    if (retries === 0) {
+      throw new Error(`[ERROR] Pet ${petId} was created but never found in API after retries.`);
     }
   });
 
-  it("Should delete the pet reliably", async function () {
+  it("Should delete the pet", async function () {
     if (!petId) throw new Error("[ERROR] Pet ID is undefined. Pet was not created.");
 
     let deleteRetries = 3;
-    let lastError = null;
-
     while (deleteRetries > 0) {
       try {
         const response = await api.delete(`/pet/${petId}`);
@@ -64,18 +63,17 @@ describe("Petstore API - Delete Pet", function () {
           return;
         }
       } catch (error: any) {
-        lastError = error;
         if (error.response?.status === 404) {
-          console.log(`[API] Pet ${petId} already deleted or not found.`);
-          return;
+          console.log(`[API] Delete attempt failed, retrying in 2s... (${deleteRetries - 1} attempts left)`);
+          deleteRetries--;
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          console.error("[ERROR] Delete API Error:", error.response?.data || error.message);
+          throw error;
         }
-        console.error("[ERROR] DELETE request failed, retrying...", error.response?.data || error.message);
-        deleteRetries--;
-        await new Promise((resolve) => setTimeout(resolve, 2500));
       }
     }
-
-    throw new Error(`[ERROR] Pet deletion failed after multiple attempts. Pet ID: ${petId} - Last error: ${lastError}`);
+    throw new Error(`[ERROR] Pet deletion failed after multiple attempts. Pet ID: ${petId}`);
   });
 
   it("Should return 404 for a deleted pet", async function () {
