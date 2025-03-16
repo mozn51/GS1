@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { APIRequest } from "../utils/request";
+import { debugLog } from "../../api-config";  // Import debugLog function
 
 const api = new APIRequest();
-const isCI = process.env.CI === "true"; // Detect if running in CI/CD
 
 describe("Petstore API - Negative Test Cases", function () {
   this.timeout(10000);
@@ -11,7 +11,7 @@ describe("Petstore API - Negative Test Cases", function () {
     try {
       await api.get("/pet/1", { timeout: 1 });
     } catch (error: any) {
-      if (!isCI) console.error("[ERROR] Network failure:", error.code);
+      debugLog(`[ERROR] Network failure: ${error.code}`);
       expect(["ECONNABORTED", "ERR_BAD_REQUEST"]).to.include(error.code);
     }
   });
@@ -21,7 +21,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.post("/pet/12345", {});
     } catch (error: any) {
       expect([405, 415]).to.include(error.response.status);
-      if (!isCI) console.error(`[ERROR] Invalid method usage: Status ${error.response.status}`);
+      debugLog(`[ERROR] Invalid method usage: Status ${error.response.status}`);
     }
   });
 
@@ -30,7 +30,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.post("/pet", { status: "available" });
     } catch (error: any) {
       expect(error.response.status).to.equal(400);
-      if (!isCI) console.error("[ERROR] Pet creation failed due to missing required fields.");
+      debugLog("[ERROR] Pet creation failed due to missing required fields.");
     }
   });
 
@@ -39,7 +39,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.put("/pet", { id: 99999999, name: "GhostPet", status: "sold" });
     } catch (error: any) {
       expect(error.response.status).to.equal(404);
-      if (!isCI) console.error("[ERROR] Update failed: Pet does not exist.");
+      debugLog("[ERROR] Update failed: Pet does not exist.");
     }
   });
 
@@ -48,7 +48,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.delete("/pet/invalid_id");
     } catch (error: any) {
       expect([400, 404]).to.include(error.response.status);
-      if (!isCI) console.error("[ERROR] Deletion failed due to invalid ID format.");
+      debugLog("[ERROR] Deletion failed due to invalid ID format.");
     }
   });
 
@@ -57,7 +57,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.get("/pet/invalid_id");
     } catch (error: any) {
       expect([400, 404]).to.include(error.response.status);
-      if (!isCI) console.error("[ERROR] Retrieval failed due to invalid ID format.");
+      debugLog("[ERROR] Retrieval failed due to invalid ID format.");
     }
   });
 
@@ -66,7 +66,7 @@ describe("Petstore API - Negative Test Cases", function () {
       await api.post("/pet", {});
     } catch (error: any) {
       expect(error.response.status).to.equal(400);
-      if (!isCI) console.error("[ERROR] Pet creation failed due to empty request body.");
+      debugLog("[ERROR] Pet creation failed due to empty request body.");
     }
   });
 
@@ -77,13 +77,13 @@ describe("Petstore API - Negative Test Cases", function () {
       status: "available",
     };
 
-    if (!isCI) console.log(`[API] POST request to /pet with excessive data (Name length: ${largePayload.name.length})`);
+    debugLog(`[API] POST request to /pet with excessive data (Name length: ${largePayload.name.length})`);
 
     try {
       await api.post("/pet", largePayload);
     } catch (error: any) {
       expect([400, 413]).to.include(error.response.status);
-      if (!isCI) console.error("[ERROR] Pet creation failed due to excessive data.");
+      debugLog("[ERROR] Pet creation failed due to excessive data.");
     }
   });
 });

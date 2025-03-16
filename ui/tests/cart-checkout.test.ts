@@ -4,61 +4,102 @@ import { ProductPage } from "../pages/product.page";
 import { Filters } from "../utils/filters";
 import { CartPage } from "../pages/cart.page";
 import { Messages } from "../utils/messages";
+import '../ui-config';
 
 test.describe("Cart & Checkout Tests", () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    await loginPage.loginWithValidUser();
+    // Conditional logging based on LOG_LEVEL environment variable
+    if (process.env.LOG_LEVEL === "debug") {
+      console.log("[DEBUG] Starting test setup - Logging in");
+    }
+
+    await test.step("Login as valid user", async () => {
+      const loginPage = new LoginPage(page);
+      await loginPage.goto();
+      await loginPage.loginWithValidUser();
+    });
+
+    if (process.env.LOG_LEVEL === "debug") {
+      console.log("[DEBUG] Test setup complete");
+    }
   });
 
   test("should add the first two products (sorted by price low to high) to cart and complete checkout", async ({ page }) => {
-    const productPage = new ProductPage(page);
-    await productPage.goto();
+    // Conditional logging based on LOG_LEVEL environment variable
+    if (process.env.LOG_LEVEL === "debug") {
+      console.log("[DEBUG] Running test: Add two products & complete checkout");
+    }
 
-    // Apply sorting filter
-    await productPage.applyFilter(Filters.PRICE_LOW_HIGH);
+    let productNames: string[]; // Store product names
+    let productPrices: number[]; // Store product prices
 
-    // Capture product details before adding to cart
-    const productNames = await productPage.getAllProductNames();
-    const productPrices = await productPage.getAllProductPrices();
+    await test.step("Navigate to Product Page & Apply Filter", async () => {
+      const productPage = new ProductPage(page);
+      await productPage.goto();
+      await productPage.applyFilter(Filters.PRICE_LOW_HIGH);
+    });
 
-    // Add first two products to cart
-    await productPage.addProductToCart(0);
-    await productPage.addProductToCart(1);
+    await test.step("Capture product details before adding to cart", async () => {
+      const productPage = new ProductPage(page);
+      productNames = await productPage.getAllProductNames();
+      productPrices = await productPage.getAllProductPrices();
+    });
 
-    // Navigate to cart
-    const cartPage = new CartPage(page);
-    await cartPage.goto();
+    await test.step("Add first two products to cart", async () => {
+      const productPage = new ProductPage(page);
+      await productPage.addProductToCart(0);
+      await productPage.addProductToCart(1);
+    });
 
-    // Capture product details inside the cart
-    const cartProductNames = await cartPage.getAllCartProductNames();
-    const cartProductPrices = await cartPage.getAllCartProductPrices();
+    let cartProductNames: string[];
+    let cartProductPrices: number[];
 
-    // Validate cart contents
-    expect(cartProductNames).toEqual([productNames[0], productNames[1]]);
-    expect(cartProductPrices).toEqual([productPrices[0], productPrices[1]]);
+    await test.step("Navigate to Cart & Capture Product Details", async () => {
+      const cartPage = new CartPage(page);
+      await cartPage.goto();
+      cartProductNames = await cartPage.getAllCartProductNames();
+      cartProductPrices = await cartPage.getAllCartProductPrices();
+    });
 
-    // Proceed to checkout
-    await cartPage.startCheckout();
-    await cartPage.checkoutYourInformation("John", "Doe", "12345");
-    await cartPage.continueCheckout();
+    await test.step("Validate cart contents", async () => {
+      expect(cartProductNames).toEqual([productNames[0], productNames[1]]);
+      expect(cartProductPrices).toEqual([productPrices[0], productPrices[1]]);
+    });
 
-    // Ensure checkout page loads properly
-    await expect(cartPage.checkoutForm).not.toBeVisible();
-    await expect(cartPage.cartList).toBeVisible();
+    await test.step("Proceed to Checkout", async () => {
+      const cartPage = new CartPage(page);
+      await cartPage.startCheckout();
+      await cartPage.checkoutYourInformation("John", "Doe", "12345");
+      await cartPage.continueCheckout();
+    });
 
-    // Validate order summary
-    const checkoutProductNames = await cartPage.getAllCheckoutProductNames();
-    expect(checkoutProductNames).toEqual([productNames[0], productNames[1]]);
+    await test.step("Ensure checkout page loads properly", async () => {
+      const cartPage = new CartPage(page);
+      await expect(cartPage.checkoutForm).not.toBeVisible();
+      await expect(cartPage.cartList).toBeVisible();
+    });
 
-    // Finish checkout
-    await cartPage.finishCheckout();
+    let checkoutProductNames: string[];
 
-    // Verify checkout success message
-    await expect(cartPage.successMessage).toHaveText(Messages.CHECKOUT_THANKS);
+    await test.step("Validate Order Summary", async () => {
+      const cartPage = new CartPage(page);
+      checkoutProductNames = await cartPage.getAllCheckoutProductNames();
+      expect(checkoutProductNames).toEqual([productNames[0], productNames[1]]);
+    });
 
-    // Back to home page
-    await cartPage.goBackToHome();
+    await test.step("Finish Checkout & Verify Success", async () => {
+      const cartPage = new CartPage(page);
+      await cartPage.finishCheckout();
+      await expect(cartPage.successMessage).toHaveText(Messages.CHECKOUT_THANKS);
+    });
+
+    await test.step("Back to Home Page", async () => {
+      const cartPage = new CartPage(page);
+      await cartPage.goBackToHome();
+    });
+
+    if (process.env.LOG_LEVEL === "debug") {
+      console.log("[DEBUG] Test completed: Add two products & complete checkout");
+    }
   });
 });

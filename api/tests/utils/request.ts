@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { API_CONFIG } from "../config/api-config";
+import { API_CONFIG, debugLog } from "../../api-config"; // Import debugLog
 
 export class APIRequest {
   private client: AxiosInstance;
@@ -20,11 +20,15 @@ export class APIRequest {
     try {
       const response = await request;
       const duration = Date.now() - start;
-      console.log(`[API] ${method} ${endpoint} completed in ${duration}ms`);
+
+      // Log request time only in debug mode
+      debugLog(`[API] ${method} ${endpoint} completed in ${duration}ms`);
       return response;
     } catch (error: any) {
       const duration = Date.now() - start;
-      console.error(`[API] ${method} ${endpoint} failed after ${duration}ms:`, error.response?.data || error.message);
+
+      // Log API error only in debug mode
+      debugLog(`[API] ${method} ${endpoint} failed after ${duration}ms: ${JSON.stringify(error.response?.data || error.message)}`);
       throw error;
     }
   }

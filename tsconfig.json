@@ -10,6 +10,6 @@
     "types": ["mocha", "chai", "node", "@playwright/test"],
     "outDir": "./dist"
   },
-  "include": ["api/tests/**/*.ts", "api/utils/**/*.ts", "ui/tests/**/*.ts", "ui/pages/**/*.ts"],
+  "include": ["api/tests/**/*.ts", "api/utils/**/*.ts", "ui/tests/**/*.ts", "ui/pages/**/*.ts", "api/api-config.ts", "ui/ui-config.ts"],
   "exclude": ["dist", "ui/tests", "api/tests"]
 }
